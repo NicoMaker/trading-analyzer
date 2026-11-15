@@ -1,0 +1,131 @@
+// Contenuto della guida: usato dalla pagina "Guida" dell'app e per generare GUIDA.md.
+// roles: chi vede la sezione (admin, utente, cliente).
+export const GUIDE = [
+  {
+    id: 'primi-passi', title: 'Primi passi', roles: ['admin', 'utente', 'cliente'],
+    lead: 'Accesso, menu e funzioni comuni a tutti.',
+    steps: [
+      'Apri l\'indirizzo del server (di solito **http://localhost:3000**) e accedi con nome utente e password. Al primo avvio l\'amministratore è **Admin / Admin123!**.',
+      'Se compare l\'avviso «password iniziale», vai su **Il mio account** (in basso a sinistra) e cambiala subito: almeno 8 caratteri con maiuscola, minuscola, numero e simbolo.',
+      'Usa il **menu a sinistra** per spostarti tra le pagine; su telefono si apre con il pulsante **☰ Menu**.',
+      'Il pallino **live** indica che gli aggiornamenti arrivano in diretta: quotazioni, operazioni e modifiche fatte da altri compaiono da sole, senza ricaricare.',
+      'La **campanella 🔔** mostra le notifiche (acquisti, vendite automatiche, avvisi). Il numero rosso indica quelle non lette.',
+      'Con **◐ Tema** passi dal tema scuro al chiaro; la scelta viene ricordata dal browser.',
+    ],
+    tip: 'Ogni tabella ed elenco ha un **numero progressivo** a sinistra di ogni riga: se filtri, i numeri si riallineano da 1.',
+  },
+  {
+    id: 'dashboard', title: 'Dashboard', roles: ['admin', 'utente'],
+    lead: 'Il colpo d\'occhio sul portafoglio.',
+    steps: [
+      'In alto i **numeri chiave**: titoli in portafoglio, valore attuale, costo, utile/perdita latente, realizzato, dividendi e alert attivi.',
+      '**↻ Aggiorna quotazioni** riscarica subito i prezzi di tutti i titoli (altrimenti si aggiornano da soli ogni minuto).',
+      'Il **grafico** mostra valore e costo nel tempo e, sotto, il rendimento %: scegli 3M, 6M o 1A.',
+      'Sotto trovi gli **alert da controllare**, la **composizione per titolo** (con il peso massimo che hai impostato), la divisione **per settore** e i **migliori e peggiori**. Ogni voce ha il suo numero d\'ordine.',
+      '**＋ Compra** apre l\'acquisto rapido.',
+    ],
+  },
+  {
+    id: 'titoli', title: 'Titoli', roles: ['admin', 'utente'],
+    lead: 'L\'elenco completo: i tuoi titoli e tutti gli altri disponibili.',
+    steps: [
+      'Nella parte alta vedi i **tuoi titoli** con quantità, prezzo medio, prezzo attuale, variazione del giorno, costo, valore, utile/perdita, peso, trend/RSI e alert.',
+      'Sotto, nel blocco **«Altri titoli disponibili»**, ci sono **sempre tutti i titoli** anche se non li hai comprati, ciascuno con il **prezzo reale** e la variazione del giorno. L\'elenco compare subito; i prezzi si aggiornano dopo qualche istante.',
+      'Il campo **Filtra** cerca per nome o ticker in entrambi gli elenchi; lasciandolo vuoto li vedi tutti. A ogni apertura della pagina il filtro riparte vuoto.',
+      '**Compra** (su un titolo non posseduto) apre l\'acquisto con quel titolo già scelto; **Aggiungi** lo inserisce nella tua lista senza comprare, per seguirlo e impostare le soglie di alert.',
+      '**＋ Compra** in alto sceglie il titolo con la ricerca; **🔍 Titoli** mostra l\'elenco completo con i prezzi; **Nuovo titolo** serve per inserire a mano un titolo (ISIN, ticker Yahoo, valuta).',
+      'Su un titolo tuo: **Vendi** vende quote libere, **Modifica** apre le soglie di alert (stop, obiettivo, RSI, peso massimo, prossima revisione), **🗑** lo elimina con le sue operazioni.',
+      'Clicca il **nome** del titolo per aprire la scheda con grafico, RSI, MACD, medie mobili e segnali.',
+    ],
+    tip: 'Il ticker usa il formato Yahoo Finance: AAPL, ENI.MI, VOD.L, SAP.DE. Se un prezzo risulta «datato», Yahoo non ha risposto e si vede l\'ultimo prezzo salvato.',
+  },
+  {
+    id: 'scheda-titolo', title: 'Scheda del titolo', roles: ['admin', 'utente'],
+    lead: 'Analisi tecnica di un singolo titolo.',
+    steps: [
+      'In alto i numeri: **prezzo**, quantità, valore, utile/perdita e realizzato.',
+      'Il grafico **Andamento** si regola con 1M, 3M, 6M, 1A e con le caselle Media 20/50/200 e Bollinger; le linee tratteggiate mostrano **stop** e **obiettivo**.',
+      '**RSI** e **MACD** mostrano ipercomprato/ipervenduto e momentum.',
+      'La lista **Segnali** riassume gli indicatori (rialzista, ribassista, neutro); la tabella **Indicatori** riporta medie, volatilità, drawdown e performance a 1M/3M/6M/1 anno.',
+      '**Modifica / soglie** cambia gli alert del titolo.',
+    ],
+    tip: 'Gli indicatori sintetizzano dati storici: non sono previsioni né consigli di investimento.',
+  },
+  {
+    id: 'operazioni', title: 'Operazioni', roles: ['admin', 'utente'],
+    lead: 'Il registro di acquisti e vendite.',
+    steps: [
+      'I **numeri** in alto riassumono operazioni, acquistato, venduto e risultato realizzato.',
+      '**+ Nuova operazione**: scegli il titolo, il tipo (Acquisto/Vendita), data, quantità, prezzo, cambio e commissioni.',
+      'Il **cambio** è «EUR per 1 unità di valuta»: per i titoli in euro scrivi 1.',
+      'Non serve riordinare: il sistema calcola tutto **per data**. Il costo venduto usa il prezzo medio mobile.',
+      'Usa il filtro in alto per vedere solo un titolo; **Modifica** e **🗑** correggono o eliminano una riga. Se un\'operazione è incoerente (es. vendi più di quanto hai) viene segnalata in rosso.',
+    ],
+  },
+  {
+    id: 'alert', title: 'Alert', roles: ['admin', 'utente'],
+    lead: 'Tutti gli avvisi attivi adesso.',
+    steps: [
+      'I contatori in alto dividono gli avvisi in **critici**, **da vedere** e **obiettivi raggiunti**.',
+      'Filtra per livello con i pulsanti; clicca un avviso per aprire il titolo.',
+      'Gli avvisi nascono dalle **soglie** che imposti su ogni titolo (stop, obiettivo, valore minimo, utile/perdita, calo giornaliero, peso massimo, RSI, revisione) e da controlli automatici (quotazione mancante, sotto media 200, death cross, MACD negativo).',
+      'In fondo c\'è lo **storico recente**; il controllo automatico gira ogni 10 minuti mentre il server è acceso.',
+    ],
+  },
+  {
+    id: 'clienti', title: 'Clienti', roles: ['admin', 'utente'],
+    lead: 'Capitale, acquisti e rischio di ogni cliente.',
+    steps: [
+      '**+ Nuovo cliente**: inserisci nome, email e, soprattutto, il **capitale** (il tetto di quanto puoi investire per lui).',
+      'Imposta lo **stop loss standard %** (ogni acquisto viene venduto da solo se perde quella percentuale) e la **perdita massima sul capitale %** (se il patrimonio scende oltre, si vende tutto).',
+      '**Compra** (o **＋ Compra per cliente**): scegli titolo e importo in euro; si compra al prezzo reale, con quote frazionarie, e il cliente riceve una notifica. Non si può superare la liquidità.',
+      'Apri un cliente per vedere **capitale, liquidità, investito, valore, utile/perdita, realizzato e patrimonio**, il grafico delle rendite e le sue allocazioni.',
+      'Sulle allocazioni: **Vendi** incassa al prezzo attuale (il denaro torna in liquidità), **Modifica** cambia importo/stop, **🗑** elimina. **+ Assegna importo** attribuisce al cliente quote già presenti nel portafoglio.',
+      'Con lo **stop loss** o la **perdita massima** raggiunti, la vendita parte in automatico (solo con prezzi reali aggiornati) e avvisa cliente e gestore.',
+    ],
+  },
+  {
+    id: 'area-cliente', title: 'Il mio portafoglio (ruolo Cliente)', roles: ['cliente'],
+    lead: 'La vista in sola lettura dei tuoi investimenti.',
+    steps: [
+      'In alto trovi **capitale, liquidità, investito, valore attuale, utile/perdita e patrimonio**.',
+      'Il grafico **Le mie rendite** mostra come cambia il valore nel tempo rispetto a quanto investito.',
+      'La tabella elenca ogni investimento con stato (aperto, venduto, stop loss), importo, valore e risultato.',
+      'Le **notifiche 🔔** ti avvisano quando il tuo gestore compra o quando scatta una vendita automatica.',
+    ],
+    tip: 'I valori sono indicativi, basati sulle quotazioni di mercato e prima delle imposte.',
+  },
+  {
+    id: 'utenti', title: 'Utenti e ruoli', roles: ['admin'],
+    lead: 'Solo per gli amministratori.',
+    steps: [
+      '**+ Nuovo utente**: scegli il ruolo — **Amministratore** (tutto), **Utente** (solo il proprio portafoglio e i propri clienti) o **Cliente** (sola lettura, collegato a un cliente).',
+      '**Apri piattaforma** ti porta nel portafoglio di un utente (compri e vendi per lui) o nella vista di un cliente; il banner in alto ti riporta indietro. In alternativa usa «Portafoglio di» nel menu.',
+      '**Modifica** cambia nome utente, password, ruolo e stato (attivo/disattivato). Chi viene modificato esce **subito** da tutti i dispositivi.',
+      '**Regola degli amministratori:** qualunque admin, anche quello iniziale, si può eliminare, disattivare o declassare — compreso il **proprio account** — purché resti **almeno un altro admin attivo**.',
+      'Se modifichi o elimini il tuo account, vieni disconnesso e rientri con un altro amministratore.',
+    ],
+    tip: 'Eliminando un utente si eliminano anche il suo portafoglio, i clienti e le operazioni: l\'app ti chiede sempre conferma.', warn: true,
+  },
+  {
+    id: 'account', title: 'Il mio account', roles: ['admin', 'utente', 'cliente'],
+    lead: 'Password e nome utente.',
+    steps: [
+      'Apri **Il mio account** dal riquadro con il tuo nome, in basso a sinistra.',
+      '**Password**: inserisci quella attuale e la nuova due volte. Dopo il cambio devi rientrare (anche gli altri dispositivi escono).',
+      '**Nome utente**: scegline uno nuovo (3-32 caratteri: lettere, numeri, punto, trattino, underscore) e conferma con la password.',
+    ],
+  },
+  {
+    id: 'aiuto', title: 'Domande frequenti', roles: ['admin', 'utente', 'cliente'],
+    lead: 'Se qualcosa non torna.',
+    steps: [
+      '**Un prezzo è «—» o «datato».** Yahoo Finance non ha risposto: si usa l\'ultimo prezzo salvato. Puoi inserire un prezzo manuale in Modifica titolo, oppure premere ↻ Aggiorna dopo qualche minuto.',
+      '**Non riesco a comprare.** Controlla che il prezzo sia aggiornato (non «datato») e che l\'importo non superi la liquidità del cliente.',
+      '**Non vedo un titolo.** Nella pagina Titoli svuota il campo Filtra: l\'elenco completo riparte da vuoto.',
+      '**Sono uscito all\'improvviso.** Qualcuno ha cambiato le tue credenziali, il tuo ruolo o ha disattivato l\'account: rientra con i dati nuovi.',
+      '**Non posso eliminare un admin.** Deve restare almeno un altro admin attivo; crea o riattiva un altro amministratore e riprova.',
+    ],
+    tip: 'Strumento di analisi: indicatori e alert non sono consigli di investimento.',
+  },
+];

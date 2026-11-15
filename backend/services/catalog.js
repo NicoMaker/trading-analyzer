@@ -1,0 +1,26 @@
+// Elenco di titoli quotati reali (simboli Yahoo Finance) mostrato nella ricerca quando non si scrive nulla.
+// I prezzi NON sono qui: arrivano sempre in diretta dall'API. Qui ci sono solo nome, borsa e settore.
+const CATALOG = [
+  // Stati Uniti
+  ['AAPL', 'Apple Inc.', 'NASDAQ', 'Technology'], ['MSFT', 'Microsoft Corp.', 'NASDAQ', 'Technology'], ['GOOGL', 'Alphabet Inc.', 'NASDAQ', 'Communication Services'],
+  ['AMZN', 'Amazon.com Inc.', 'NASDAQ', 'Consumer Cyclical'], ['NVDA', 'NVIDIA Corp.', 'NASDAQ', 'Technology'], ['META', 'Meta Platforms Inc.', 'NASDAQ', 'Communication Services'],
+  ['TSLA', 'Tesla Inc.', 'NASDAQ', 'Consumer Cyclical'], ['NFLX', 'Netflix Inc.', 'NASDAQ', 'Communication Services'], ['AMD', 'Advanced Micro Devices', 'NASDAQ', 'Technology'],
+  ['INTC', 'Intel Corp.', 'NASDAQ', 'Technology'], ['JPM', 'JPMorgan Chase & Co.', 'NYSE', 'Financial Services'], ['BAC', 'Bank of America', 'NYSE', 'Financial Services'],
+  ['V', 'Visa Inc.', 'NYSE', 'Financial Services'], ['KO', 'Coca-Cola Co.', 'NYSE', 'Consumer Defensive'], ['PEP', 'PepsiCo Inc.', 'NASDAQ', 'Consumer Defensive'],
+  ['DIS', 'Walt Disney Co.', 'NYSE', 'Communication Services'], ['WMT', 'Walmart Inc.', 'NYSE', 'Consumer Defensive'], ['XOM', 'Exxon Mobil Corp.', 'NYSE', 'Energy'],
+  ['JNJ', 'Johnson & Johnson', 'NYSE', 'Healthcare'], ['PG', 'Procter & Gamble', 'NYSE', 'Consumer Defensive'],
+  // Italia
+  ['ENI.MI', 'Eni S.p.A.', 'Milano', 'Energy'], ['ENEL.MI', 'Enel S.p.A.', 'Milano', 'Utilities'], ['ISP.MI', 'Intesa Sanpaolo', 'Milano', 'Financial Services'],
+  ['UCG.MI', 'UniCredit S.p.A.', 'Milano', 'Financial Services'], ['RACE.MI', 'Ferrari N.V.', 'Milano', 'Consumer Cyclical'], ['STLAM.MI', 'Stellantis N.V.', 'Milano', 'Consumer Cyclical'],
+  ['G.MI', 'Assicurazioni Generali', 'Milano', 'Financial Services'], ['LDO.MI', 'Leonardo S.p.A.', 'Milano', 'Industrials'], ['PRY.MI', 'Prysmian S.p.A.', 'Milano', 'Industrials'],
+  ['MONC.MI', 'Moncler S.p.A.', 'Milano', 'Consumer Cyclical'], ['CPR.MI', 'Davide Campari-Milano', 'Milano', 'Consumer Defensive'], ['TIT.MI', 'Telecom Italia', 'Milano', 'Communication Services'],
+  // Europa
+  ['SAP.DE', 'SAP SE', 'Xetra', 'Technology'], ['SIE.DE', 'Siemens AG', 'Xetra', 'Industrials'], ['ALV.DE', 'Allianz SE', 'Xetra', 'Financial Services'],
+  ['MC.PA', 'LVMH', 'Parigi', 'Consumer Cyclical'], ['OR.PA', "L'Oréal", 'Parigi', 'Consumer Defensive'], ['AIR.PA', 'Airbus SE', 'Parigi', 'Industrials'],
+  ['ASML.AS', 'ASML Holding', 'Amsterdam', 'Technology'], ['SHEL.L', 'Shell plc', 'Londra', 'Energy'], ['HSBA.L', 'HSBC Holdings', 'Londra', 'Financial Services'],
+  ['NESN.SW', 'Nestlé S.A.', 'Zurigo', 'Consumer Defensive'], ['NOVN.SW', 'Novartis AG', 'Zurigo', 'Healthcare'],
+  // ETF
+  ['SPY', 'SPDR S&P 500 ETF', 'NYSE Arca', 'ETF'], ['VWCE.DE', 'Vanguard FTSE All-World UCITS ETF', 'Xetra', 'ETF'], ['IWDA.AS', 'iShares Core MSCI World UCITS ETF', 'Amsterdam', 'ETF'],
+].map(([symbol, name, exchange, sector]) => ({ symbol, name, exchange, sector, type: sector === 'ETF' ? 'ETF' : 'EQUITY' }));
+
+module.exports = { CATALOG };

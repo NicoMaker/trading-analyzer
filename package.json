@@ -1,0 +1,26 @@
+{
+  "name": "trading-analyzer",
+  "version": "1.0.0",
+  "description": "Analisi trading e controllo azioni con alert, utenti, clienti e allocazioni (Node + Express + SQLite)",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js",
+    "test": "node --test backend/tests/unit.test.js backend/tests/api.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "express": "^4.22.3",
+    "jsonwebtoken": "^9.0.3",
+    "socket.io": "^4.8.4",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.4"
+  }
+}
