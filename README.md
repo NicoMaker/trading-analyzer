@@ -9,7 +9,7 @@ Logica ricavata dal file `Controllo_azioni.xlsx` (prezzo medio mobile, stop, obi
 Richiede Node.js 18 o superiore.
 
     npm install
-    npm start          (oppure doppio clic su avvia.bat / ./avvia.sh)
+    npm start
 
 Il server parte su http://localhost:3000, serve `frontend/index.html` (il browser non si apre da solo: vai tu all'indirizzo; `PORT=3001` per cambiare porta).
 
