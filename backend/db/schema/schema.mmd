@@ -1,0 +1,126 @@
+---
+title: Trading Analyzer - Schema database (SQLite)
+---
+erDiagram
+  USERS ||--o{ CLIENTS : "possiede (owner_id)"
+  USERS ||--o{ POSITIONS : "possiede (owner_id)"
+  USERS ||--o{ OPERATIONS : "registra (owner_id)"
+  USERS ||--o{ ALLOCATIONS : "gestisce (owner_id)"
+  USERS ||--o{ NOTIFICATIONS : "riceve (user_id)"
+  USERS ||--o{ ALERT_LOG : "storico alert (owner_id)"
+  CLIENTS |o--o{ USERS : "account cliente (client_id)"
+  CLIENTS ||--o{ ALLOCATIONS : "riceve (client_id)"
+  POSITIONS ||--o{ OPERATIONS : "isin"
+  POSITIONS ||--o{ ALLOCATIONS : "isin"
+  POSITIONS ||--o{ ALERT_LOG : "isin"
+  POSITIONS }o--o| MARKET_CACHE : "ticker = symbol"
+  POSITIONS }o--o| FX_CACHE : "currency"
+
+  USERS {
+    INTEGER id PK
+    TEXT username UK "NOCASE"
+    TEXT name
+    TEXT password_hash "bcrypt"
+    TEXT role "admin | utente | cliente"
+    INTEGER client_id FK "solo ruolo cliente"
+    INTEGER active
+    INTEGER must_change_password
+    INTEGER protected "admin iniziale"
+    INTEGER token_version "invalida le sessioni"
+    TEXT created_at
+  }
+  CLIENTS {
+    INTEGER id PK
+    INTEGER owner_id FK
+    TEXT name
+    TEXT email
+    TEXT notes
+    REAL capital "EUR investibili"
+    REAL default_stop_pct "stop loss standard"
+    REAL max_drawdown_pct "perdita massima sul capitale"
+    TEXT created_at
+  }
+  POSITIONS {
+    INTEGER id PK
+    INTEGER owner_id FK
+    TEXT isin "UK con owner_id"
+    TEXT name
+    TEXT ticker "formato Yahoo"
+    TEXT currency
+    TEXT sector
+    TEXT risk
+    REAL max_weight
+    REAL stop_price
+    REAL target_price
+    REAL min_value_eur
+    REAL min_pl_pct
+    REAL day_drop_pct
+    REAL rsi_low
+    REAL rsi_high
+    TEXT next_review
+    REAL dividends
+    REAL manual_price
+    REAL manual_fx
+    TEXT notes
+  }
+  OPERATIONS {
+    INTEGER id PK
+    INTEGER owner_id FK
+    TEXT date
+    TEXT isin
+    TEXT type "Acquisto | Vendita"
+    REAL quantity
+    REAL price
+    REAL fx
+    REAL fees
+    TEXT note
+  }
+  ALLOCATIONS {
+    INTEGER id PK
+    INTEGER owner_id FK
+    INTEGER client_id FK
+    TEXT isin
+    REAL euro "importo assegnato"
+    REAL entry_price_eur
+    REAL stop_loss_pct "vendita forzata"
+    TEXT status "open | closed"
+    TEXT closed_at
+    REAL exit_price_eur
+    TEXT exit_reason "manuale | stop_loss | drawdown"
+    TEXT note
+  }
+  NOTIFICATIONS {
+    INTEGER id PK
+    INTEGER user_id FK
+    TEXT kind
+    TEXT severity "info | success | warning | danger"
+    TEXT title
+    TEXT message
+    INTEGER read
+    TEXT created_at
+  }
+  ALERT_LOG {
+    INTEGER id PK
+    INTEGER owner_id FK
+    TEXT isin
+    TEXT code
+    TEXT severity
+    TEXT message
+    TEXT day "UK owner+isin+code+day"
+  }
+  MARKET_CACHE {
+    TEXT symbol PK
+    TEXT name
+    TEXT exchange
+    TEXT currency
+    REAL price
+    INTEGER market_time
+    TEXT candles "JSON storico"
+    INTEGER fetched_at
+    TEXT last_error
+  }
+  FX_CACHE {
+    TEXT currency PK
+    REAL eur_per_unit
+    INTEGER fetched_at
+  }
