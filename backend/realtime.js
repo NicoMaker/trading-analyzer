@@ -81,4 +81,13 @@ function kickUser(
   setTimeout(() => io && io.in(room).disconnectSockets(true), 400);
 }
 
-module.exports = { attach, toUser, toOwner, kickUser };
+// Chiude tutte le connessioni socket.io (usato dai test e allo spegnimento)
+function close() {
+  if (!io) return;
+  const s = io;
+  io = null;
+  s.disconnectSockets(true);
+  s.close();
+}
+
+module.exports = { attach, toUser, toOwner, kickUser, close };

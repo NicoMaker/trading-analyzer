@@ -1,6 +1,6 @@
 // Acquisti e vendite a prezzo di mercato reale, capitale dei clienti e vendita forzata.
-//  - buy: compra un titolo al prezzo attuale (API) per un cliente: registra l'operazione, assegna l'importo e controlla il capitale
-//  - closeAllocation / sellPosition: vendono al prezzo attuale
+//  - buy: compra un titolo al prezzo attuale (API) per un cliente, per importo in euro o per numero di quote: registra l'operazione, assegna l'importo e controlla il capitale
+//  - closeAllocation / sellAllocation / sellPosition: vendono al prezzo attuale (tutta l'allocazione, una parte per quote o importo, quote libere)
 //  - runRisk: stop loss per allocazione e perdita massima sul capitale del cliente => vendita forzata automatica
 const { get, all, run, transaction } = require("../db/database");
 const market = require("./market");
@@ -12,12 +12,15 @@ const {
 } = require("./portfolio");
 const { notifyClient, notifyUser } = require("./notify");
 const { CATALOG } = require("./catalog");
-const { HttpError, bad } = require("../routes/helpers");
+const { HttpError, bad, blank, sizeFrom } = require("../routes/helpers");
 
 const EPS = 1e-8;
+const MIN_EUR = 0.01; // importo minimo di un ordine (e resto minimo che ha senso tenere in un'allocazione)
 const today = () => new Date().toISOString().slice(0, 10);
 const fmtEur = (n) =>
   `${Number(n).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+const fmtQty = (n) =>
+  Number(n).toLocaleString("it-IT", { maximumFractionDigits: 4 });
 const fmtPct = (n) =>
   `${n > 0 ? "+" : ""}${Number(n).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`;
 
@@ -93,10 +96,13 @@ async function positionQty(ownerId, isin) {
 }
 
 // ---- Acquisto per un cliente (o per il solo portafoglio) --------------------------------------------
+// Si indica o l'importo in euro oppure il numero di quote. Controlli: capitale impostato, importo/quote > 0,
+// importo minimo, e se c'e' un cliente non si puo' spendere piu' della sua liquidita'.
 async function buy({
   ownerId,
   symbol,
   euro,
+  quantity,
   clientId,
   stopLossPct,
   note,
@@ -106,8 +112,7 @@ async function buy({
     .trim()
     .toUpperCase();
   if (!symbol) throw bad("Scegli un titolo");
-  euro = Number(euro);
-  if (!Number.isFinite(euro) || euro <= 0) throw bad("Importo non valido");
+  const size = sizeFrom({ euro, quantity });
 
   let client = null;
   if (clientId) {
@@ -119,14 +124,6 @@ async function buy({
     if (!(client.capital > 0))
       throw bad(
         `Imposta prima il capitale di ${client.name} (scheda cliente > Modifica)`,
-      );
-    const cash = cashOf(
-      client,
-      await all("SELECT * FROM allocations WHERE client_id = ?", [client.id]),
-    );
-    if (euro > cash + 0.005)
-      throw bad(
-        `Capitale insufficiente: ${client.name} puo' investire ancora ${fmtEur(Math.max(0, cash))}, richiesti ${fmtEur(euro)}`,
       );
   }
   const stop =
@@ -144,7 +141,24 @@ async function buy({
     existing && existing.ticker ? existing.ticker : symbol,
     existing ? existing.currency : null,
   );
-  const qty = euro / priceEur;
+  // Il numero di quote e l'importo si ricavano uno dall'altro al prezzo reale del momento
+  const qty = size.quantity != null ? size.quantity : size.euro / priceEur;
+  euro = size.euro != null ? size.euro : size.quantity * priceEur;
+  if (euro < MIN_EUR)
+    throw bad(
+      `Ordine troppo piccolo: minimo ${fmtEur(MIN_EUR)} (richiesti ${fmtEur(euro)})`,
+    );
+  if (client) {
+    const cash = cashOf(
+      client,
+      await all("SELECT * FROM allocations WHERE client_id = ?", [client.id]),
+    );
+    if (euro > cash + 0.005) {
+      throw bad(
+        `Capitale insufficiente: ${client.name} puo' investire ancora ${fmtEur(Math.max(0, cash))} (≈ ${fmtQty(Math.max(0, cash) / priceEur)} quote), richiesti ${fmtEur(euro)} (${fmtQty(qty)} quote)`,
+      );
+    }
+  }
   const cat = CATALOG.find((c) => c.symbol === symbol);
 
   const out = await transaction(async (tx) => {
@@ -299,8 +313,135 @@ async function closeAllocation(
   return { id: a.id, proceeds: incasso, pnl, pnlPct, reason, priceEur };
 }
 
-// ---- Vendita di quote del portafoglio non assegnate ai clienti ------------------------------------------
-async function sellPosition({ ownerId, positionId, quantity, all: sellAll }) {
+// ---- Vendita PARZIALE di un'allocazione cliente: numero di quote oppure importo in euro -------------------
+// Controlli: l'allocazione deve essere aperta, non si vende piu' di quanto il cliente ha (quote o valore attuale),
+// importo minimo; se il resto sarebbe trascurabile (< 0,01 €) o si chiede tutto, si vende l'intera allocazione.
+// L'allocazione resta aperta con le quote rimaste; la parte venduta diventa una riga "chiusa" (incasso in liquidita').
+async function sellAllocation(
+  id,
+  { ownerId = null, euro = null, quantity = null, all: sellAll = false } = {},
+) {
+  if (sellAll || (blank(euro) && blank(quantity)))
+    return closeAllocation(id, { reason: "manuale", ownerId });
+  const size = sizeFrom({ euro, quantity });
+  const a = await get(
+    "SELECT * FROM allocations WHERE id = ? AND status = 'open'",
+    [id],
+  );
+  if (!a || (ownerId && a.owner_id !== ownerId))
+    throw new HttpError(404, "Allocazione aperta non trovata");
+  const pos = await get(
+    "SELECT * FROM positions WHERE owner_id = ? AND isin = ?",
+    [a.owner_id, a.isin],
+  );
+  if (!pos || !pos.ticker)
+    throw bad("Titolo senza ticker: impossibile vendere a prezzo di mercato");
+  const entry = a.entry_price_eur > 0 ? a.entry_price_eur : null;
+  if (!entry)
+    throw bad(
+      "Allocazione senza prezzo di ingresso: indicalo con Modifica prima di venderla",
+    );
+
+  const { d, fx, priceEur } = await livePrice(pos.ticker, pos.currency);
+  const units = a.euro / entry; // quote del cliente in questa allocazione
+  const maxEuro = units * priceEur; // quanto incasserebbe vendendo tutto adesso
+  const q = size.quantity != null ? size.quantity : size.euro / priceEur;
+  if (size.quantity != null && q > units + EPS)
+    throw bad(
+      `Quote da vendere (${fmtQty(q)}) oltre quelle dell'allocazione: al massimo ${fmtQty(units)} quote`,
+    );
+  if (size.euro != null && size.euro > maxEuro + 0.005)
+    throw bad(
+      `Importo da vendere (${fmtEur(size.euro)}) oltre il valore dell'allocazione: al massimo ${fmtEur(maxEuro)}`,
+    );
+  if (q * priceEur < MIN_EUR)
+    throw bad(`Vendita troppo piccola: minimo ${fmtEur(MIN_EUR)}`);
+  const rest = units - q;
+  if (rest * priceEur < MIN_EUR)
+    return closeAllocation(id, { reason: "manuale", ownerId }); // nulla di sensato rimarrebbe: si vende tutto
+
+  const sellQty = Math.min(q, await positionQty(a.owner_id, a.isin));
+  const costPart = q * entry; // parte dell'importo investito che esce
+  const note = `${a.note ? a.note + " · " : ""}vendita parziale`.slice(0, 300);
+  let soldId = null;
+  await transaction(async (tx) => {
+    if (sellQty > EPS) {
+      await tx.run(
+        "INSERT INTO operations (owner_id, date, isin, type, quantity, price, fx, fees, note) VALUES (?,?,?,?,?,?,?,?,?)",
+        [
+          a.owner_id,
+          today(),
+          a.isin,
+          "Vendita",
+          sellQty,
+          d.price,
+          fx,
+          0,
+          "Vendita parziale allocazione cliente",
+        ],
+      );
+    }
+    await tx.run("UPDATE allocations SET euro = ? WHERE id = ?", [
+      a.euro - costPart,
+      a.id,
+    ]);
+    const r = await tx.run(
+      "INSERT INTO allocations (owner_id, client_id, isin, euro, entry_price_eur, note, stop_loss_pct, status, closed_at, exit_price_eur, exit_reason, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+      [
+        a.owner_id,
+        a.client_id,
+        a.isin,
+        costPart,
+        entry,
+        note,
+        a.stop_loss_pct,
+        "closed",
+        new Date().toISOString(),
+        priceEur,
+        "manuale",
+        a.created_at,
+      ],
+    );
+    soldId = r.lastID;
+  });
+
+  const incasso = q * priceEur,
+    pnl = incasso - costPart,
+    pnlPct = (incasso / costPart - 1) * 100;
+  const msg = {
+    kind: "sale",
+    severity: "info",
+    title: `Vendita parziale: ${pos.name}`,
+    message: `Vendute ${fmtQty(q)} quote a ${d.price.toLocaleString("it-IT", { maximumFractionDigits: 4 })} ${d.currency}: incassati ${fmtEur(incasso)} (${pnl >= 0 ? "+" : ""}${fmtEur(pnl)}, ${fmtPct(pnlPct)}). Restano ${fmtQty(rest)} quote.`,
+  };
+  await notifyClient(a.client_id, msg);
+  await notifyUser(a.owner_id, {
+    ...msg,
+    title: `${msg.title} (cliente #${a.client_id})`,
+  });
+  return {
+    id: a.id,
+    soldAllocationId: soldId,
+    partial: true,
+    quantity: q,
+    proceeds: incasso,
+    pnl,
+    pnlPct,
+    reason: "manuale",
+    priceEur,
+    remainingUnits: rest,
+    remainingEuro: a.euro - costPart,
+  };
+}
+
+// ---- Vendita di quote del portafoglio non assegnate ai clienti (per numero di quote, per importo o tutte) ----
+async function sellPosition({
+  ownerId,
+  positionId,
+  quantity,
+  euro,
+  all: sellAll,
+}) {
   const pos = await get(
     "SELECT * FROM positions WHERE id = ? AND owner_id = ?",
     [positionId, ownerId],
@@ -318,18 +459,27 @@ async function sellPosition({ ownerId, positionId, quantity, all: sellAll }) {
     0,
   );
   const free = Math.max(0, qty - allocated);
-  const q = sellAll ? free : Number(quantity);
-  if (!Number.isFinite(q) || q <= 0)
+  if (free <= EPS)
     throw bad(
-      free > EPS
-        ? "Quantita non valida"
-        : "Nessuna quota libera: il resto e' assegnato ai clienti (chiudi prima le loro allocazioni)",
+      "Nessuna quota libera: tutto il resto e' assegnato ai clienti (vendi prima le loro allocazioni)",
     );
+  const size = sizeFrom({ quantity, euro, all: sellAll }, { allowAll: true });
+  if (size.quantity != null && size.quantity > free + EPS)
+    throw bad(
+      `Puoi vendere al massimo ${fmtQty(free)} quote libere: le altre sono assegnate ai clienti`,
+    );
+  const { d, fx, priceEur } = await livePrice(pos.ticker, pos.currency);
+  const q = size.all
+    ? free
+    : size.quantity != null
+      ? size.quantity
+      : size.euro / priceEur;
   if (q > free + EPS)
     throw bad(
-      `Puoi vendere al massimo ${free.toLocaleString("it-IT", { maximumFractionDigits: 6 })} quote: le altre sono assegnate ai clienti`,
+      `Importo da vendere (${fmtEur(size.euro)}) oltre il valore delle quote libere: al massimo ${fmtEur(free * priceEur)}`,
     );
-  const { d, fx } = await livePrice(pos.ticker, pos.currency);
+  if (q * priceEur < MIN_EUR)
+    throw bad(`Vendita troppo piccola: minimo ${fmtEur(MIN_EUR)}`);
   await run(
     "INSERT INTO operations (owner_id, date, isin, type, quantity, price, fx, fees, note) VALUES (?,?,?,?,?,?,?,?,?)",
     [
@@ -337,7 +487,7 @@ async function sellPosition({ ownerId, positionId, quantity, all: sellAll }) {
       today(),
       pos.isin,
       "Vendita",
-      q,
+      Math.min(q, qty),
       d.price,
       fx,
       0,
@@ -417,6 +567,7 @@ async function runRisk(ownerId) {
 module.exports = {
   buy,
   closeAllocation,
+  sellAllocation,
   sellPosition,
   runRisk,
   cashOf,

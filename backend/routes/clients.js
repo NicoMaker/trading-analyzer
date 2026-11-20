@@ -168,26 +168,60 @@ router.delete(
 );
 
 // ---- Allocazioni --------------------------------------------------------------------------------
-// Riepilogo per titolo: quanto e' assegnato e quanto resta (rispetto al costo della posizione)
+// Riepilogo per titolo: quanto e' assegnato e quanto resta (rispetto al costo della posizione), in euro e in quote
 router.get(
   "/allocations/summary",
   wrap(async (req, res) => {
-    const pf = await loadPortfolio(req.ownerId);
+    const [pf, open] = await Promise.all([
+      loadPortfolio(req.ownerId),
+      all(
+        "SELECT isin, euro, entry_price_eur FROM allocations WHERE owner_id = ? AND status = 'open'",
+        [req.ownerId],
+      ),
+    ]);
+    const units = new Map();
+    for (const a of open)
+      if (a.entry_price_eur > 0)
+        units.set(
+          a.isin,
+          (units.get(a.isin) || 0) + a.euro / a.entry_price_eur,
+        );
     res.json(
       pf.positions
         .filter((p) => p.quantity > 0)
-        .map((p) => ({
-          isin: p.isin,
-          name: p.name,
-          cost: p.cost,
-          value: p.value,
-          allocated: p.allocatedEur,
-          free: p.cost - p.allocatedEur,
-          over: p.allocatedEur > p.cost + 0.01,
-        })),
+        .map((p) => {
+          const allocatedUnits = units.get(p.isin) || 0;
+          return {
+            isin: p.isin,
+            name: p.name,
+            cost: p.cost,
+            value: p.value,
+            allocated: p.allocatedEur,
+            free: p.cost - p.allocatedEur,
+            over: p.allocatedEur > p.cost + 0.01,
+            priceEur: p.price != null && p.fx != null ? p.price * p.fx : null,
+            quantity: p.quantity,
+            allocatedUnits,
+            freeUnits: Math.max(0, p.quantity - allocatedUnits),
+          };
+        }),
     );
   }),
 );
+
+// Importo da assegnare: in euro (euro) oppure in quote (units), mai entrambi. Con le quote serve il prezzo di ingresso.
+function allocAmount(b, entry) {
+  const units = optNum(b.units, "Quote", { gt: 0 });
+  const euroIn = optNum(b.euro, "Importo EUR", { gt: 0 });
+  if (units != null && euroIn != null)
+    throw bad("Indica o l'importo in euro o le quote, non tutti e due");
+  if (units == null) return reqNum(b.euro, "Importo EUR", { gt: 0 });
+  if (!(entry > 0))
+    throw bad(
+      "Prezzo non disponibile per convertire le quote: indica l'importo in euro o il prezzo di ingresso",
+    );
+  return units * entry;
+}
 
 router.post(
   "/:id/allocations",
@@ -195,12 +229,20 @@ router.post(
     const c = await ownClient(req, parseInt(req.params.id, 10));
     const b = req.body || {};
     const isin = reqStr(b.isin, "Titolo", 30).toUpperCase();
-    const euro = reqNum(b.euro, "Importo EUR", { gt: 0 });
     const pos = await get(
       "SELECT * FROM positions WHERE owner_id = ? AND isin = ?",
       [req.ownerId, isin],
     );
     if (!pos) throw bad("Titolo non presente nel portafoglio");
+    let entry = optNum(b.entryPriceEur, "Prezzo di ingresso EUR", { gt: 0 });
+    if (entry == null) {
+      // Prezzo attuale in EUR come prezzo di ingresso, se disponibile
+      const pf = await loadPortfolio(req.ownerId);
+      const p = pf.positions.find((x) => x.isin === isin);
+      if (p && p.price != null && p.fx != null) entry = p.price * p.fx;
+      else if (p && p.avgPrice != null) entry = p.avgPrice;
+    }
+    const euro = allocAmount(b, entry);
     // Capitale: il cliente non puo' investire piu' di quanto ha a disposizione
     if (!(c.capital > 0))
       throw bad(`Imposta prima il capitale di ${c.name} (Modifica cliente)`);
@@ -212,14 +254,6 @@ router.post(
       throw bad(
         `Capitale insufficiente: ${c.name} puo' investire ancora ${Math.max(0, cash).toFixed(2)} EUR, richiesti ${euro.toFixed(2)} EUR`,
       );
-    let entry = optNum(b.entryPriceEur, "Prezzo di ingresso EUR", { gt: 0 });
-    if (entry == null) {
-      // Prezzo attuale in EUR come prezzo di ingresso, se disponibile
-      const pf = await loadPortfolio(req.ownerId);
-      const p = pf.positions.find((x) => x.isin === isin);
-      if (p && p.price != null && p.fx != null) entry = p.price * p.fx;
-      else if (p && p.avgPrice != null) entry = p.avgPrice;
-    }
     const stop =
       b.stopLossPct === "" || b.stopLossPct == null
         ? c.default_stop_pct
@@ -249,10 +283,10 @@ router.put(
     if (a.status === "closed")
       throw bad("Allocazione gia venduta: non modificabile");
     const b = req.body || {};
-    const euro = reqNum(b.euro, "Importo EUR", { gt: 0 });
     const entry =
       optNum(b.entryPriceEur, "Prezzo di ingresso EUR", { gt: 0 }) ??
       a.entry_price_eur;
+    const euro = allocAmount(b, entry); // in euro oppure in quote (quote x prezzo di ingresso)
     const stop =
       b.stopLossPct === undefined ? a.stop_loss_pct : checkStop(b.stopLossPct);
     if (euro > a.euro) {

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "node --watch backend/server.js",
-    "test": "node --test backend/tests/unit.test.js backend/tests/api.test.js"
+    "test": "node --test backend/tests/unit.js backend/tests/api.js"
   },
   "engines": {
     "node": ">=18"

@@ -17,7 +17,7 @@ import {
   alertBadges,
 } from "./ui.js";
 import { perfCard } from "./perf.js";
-import { openBuyModal } from "./trade.js";
+import { openBuyModal, openSellAllocationModal } from "./trade.js";
 import { store } from "../store.js";
 
 const REASON = {
@@ -541,33 +541,9 @@ export async function renderClientDetail(view, id) {
                           "button",
                           {
                             class: "btn sm danger",
-                            onclick: async () => {
-                              if (
-                                !(await confirmDialog(
-                                  "Vendere al prezzo attuale?",
-                                  `${x.name}: ${eur(x.euro)} assegnati. L'incasso torna nella liquidità del cliente.`,
-                                  { okLabel: "Vendi" },
-                                ))
-                              )
-                                return;
-                              try {
-                                const r = await api.post(
-                                  `/trade/close/${x.id}`,
-                                );
-                                toast(
-                                  "Venduto",
-                                  `Incassati ${eur(r.proceeds)} (${pct(r.pnlPct)})`,
-                                  r.pnl >= 0 ? "success" : "warning",
-                                );
-                                reload();
-                              } catch (e) {
-                                toast(
-                                  "Vendita non eseguita",
-                                  e.message,
-                                  "danger",
-                                );
-                              }
-                            },
+                            title:
+                              "Vendi tutto o solo una parte (quote o importo)",
+                            onclick: () => openSellAllocationModal(x, reload),
                           },
                           "Vendi",
                         ),
@@ -638,17 +614,65 @@ function allocationForm(client, cash, summary, a, onSaved) {
     { disabled: editing },
   );
   const hint = h("div", { class: "muted", style: { fontSize: "12px" } });
+  // Importo in euro e quote sono due modi di dire la stessa cosa: si calcolano a vicenda al prezzo di ingresso (o attuale).
+  // Si invia solo l'ultimo campo modificato, cosi' l'altro e' sempre ricavato senza arrotondamenti.
+  const euroIn = input("euro", {
+    type: "number",
+    step: "0.01",
+    min: 0.01,
+    value: a ? a.euro : "",
+  });
+  const unitsIn = input("units", {
+    type: "number",
+    step: "any",
+    min: 0,
+    value: a && a.units ? Math.round(a.units * 1e6) / 1e6 : "",
+  });
+  const entryIn = input("entryPriceEur", {
+    type: "number",
+    step: "any",
+    min: 0,
+    value: a && a.entryPriceEur ? a.entryPriceEur : "",
+  });
+  let last = "euro";
+  const priceNow = () => {
+    const e = parseFloat(entryIn.value);
+    if (e > 0) return e;
+    const s = summary.find((x) => x.isin === sel.value);
+    return (s && s.priceEur) || null;
+  };
+  const sync = () => {
+    const price = priceNow();
+    if (!price) return;
+    if (last === "units") {
+      const u = parseFloat(unitsIn.value);
+      euroIn.value = u > 0 ? String(Math.round(u * price * 100) / 100) : "";
+    } else {
+      const v = parseFloat(euroIn.value);
+      unitsIn.value = v > 0 ? String(Math.round((v / price) * 1e6) / 1e6) : "";
+    }
+  };
   const upd = () => {
     const s = summary.find((x) => x.isin === sel.value);
     mount(hint, [
       `Il cliente può investire ancora `,
       h("b", { class: cash < 0 ? "down" : "" }, eur(cash)),
       s
-        ? ` · titolo: costo ${eur(s.cost)}, già assegnati ${eur(s.allocated)}`
+        ? ` · titolo: ${num(s.quantity, 4)} quote possedute, ${num(s.allocatedUnits, 4)} già assegnate, ${num(s.freeUnits, 4)} libere (costo ${eur(s.cost)}, assegnati ${eur(s.allocated)})`
         : "",
     ]);
+    sync();
   };
   sel.addEventListener("change", upd);
+  euroIn.addEventListener("input", () => {
+    last = "euro";
+    sync();
+  });
+  unitsIn.addEventListener("input", () => {
+    last = "units";
+    sync();
+  });
+  entryIn.addEventListener("input", sync);
   upd();
   const form = h(
     "form",
@@ -660,6 +684,8 @@ function allocationForm(client, cash, summary, a, onSaved) {
         try {
           const d = formData(form);
           if (editing) d.isin = a.isin;
+          d.euro = last === "units" ? "" : euroIn.value;
+          d.units = last === "units" ? unitsIn.value : "";
           if (editing) await api.put(`/clients/allocations/${a.id}`, d);
           else await api.post(`/clients/${client.id}/allocations`, d);
           m.close();
@@ -672,24 +698,15 @@ function allocationForm(client, cash, summary, a, onSaved) {
     },
     field("Titolo", sel),
     hint,
-    field(
-      "Importo EUR",
-      input("euro", {
-        type: "number",
-        step: "0.01",
-        min: 0.01,
-        required: true,
-        value: a ? a.euro : "",
-      }),
+    h(
+      "div",
+      { class: "form-grid" },
+      field("Importo EUR", euroIn, "Quanto investire"),
+      field("oppure Quote", unitsIn, "Quante azioni (anche frazionarie)"),
     ),
     field(
       "Prezzo di ingresso EUR (facoltativo)",
-      input("entryPriceEur", {
-        type: "number",
-        step: "any",
-        min: 0,
-        value: a && a.entryPriceEur ? a.entryPriceEur : "",
-      }),
+      entryIn,
       "Vuoto = prezzo attuale",
     ),
     field(

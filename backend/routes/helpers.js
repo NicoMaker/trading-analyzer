@@ -26,6 +26,27 @@ function reqNum(v, label, opts) {
   if (n == null) throw bad(`${label}: obbligatorio`);
   return n;
 }
+const blank = (v) => v === "" || v == null;
+
+// Quanto comprare o vendere: importo in euro OPPURE numero di quote (mai entrambi). Controlli: numeri finiti e > 0.
+// Restituisce { euro, quantity, all }: uno solo tra euro e quantity e' valorizzato (con all=true nessuno dei due).
+function sizeFrom(b, { allowAll = false } = {}) {
+  if (allowAll && b.all) return { euro: null, quantity: null, all: true };
+  const euro = optNum(b.euro, "Importo EUR", { gt: 0 });
+  const quantity = optNum(b.quantity, "Numero di quote", { gt: 0 });
+  if (euro != null && quantity != null)
+    throw bad(
+      "Indica o l'importo in euro o il numero di quote, non tutti e due",
+    );
+  if (euro == null && quantity == null) {
+    throw bad(
+      allowAll
+        ? "Indica quanto vendere: numero di quote, importo in euro oppure tutto"
+        : "Indica quanto comprare: importo in euro oppure numero di quote",
+    );
+  }
+  return { euro, quantity, all: false };
+}
 const str = (v, max = 200) =>
   v == null ? null : String(v).trim().slice(0, max) || null;
 function reqStr(v, label, max = 200) {
@@ -93,6 +114,8 @@ module.exports = {
   wrap,
   HttpError,
   bad,
+  blank,
+  sizeFrom,
   optNum,
   reqNum,
   str,
