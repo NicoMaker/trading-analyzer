@@ -20,7 +20,7 @@ Guida rapida per ogni ruolo: **Amministratore**, **Utente** e **Cliente**. La st
 
 ## 1. Primi passi
 
-*Per: tutti i ruoli*
+_Per: tutti i ruoli_
 
 Accesso, menu e funzioni comuni a tutti.
 
@@ -37,7 +37,7 @@ Accesso, menu e funzioni comuni a tutti.
 
 ## 2. Dashboard
 
-*Per: Amministratore, Utente*
+_Per: Amministratore, Utente_
 
 Il colpo d'occhio sul portafoglio.
 
@@ -51,7 +51,7 @@ Il colpo d'occhio sul portafoglio.
 
 ## 3. Titoli
 
-*Per: Amministratore, Utente*
+_Per: Amministratore, Utente_
 
 L'elenco completo: i tuoi titoli e tutti gli altri disponibili.
 
@@ -69,7 +69,7 @@ L'elenco completo: i tuoi titoli e tutti gli altri disponibili.
 
 ## 4. Scheda del titolo
 
-*Per: Amministratore, Utente*
+_Per: Amministratore, Utente_
 
 Analisi tecnica di un singolo titolo.
 
@@ -85,7 +85,7 @@ Analisi tecnica di un singolo titolo.
 
 ## 5. Operazioni
 
-*Per: Amministratore, Utente*
+_Per: Amministratore, Utente_
 
 Il registro di acquisti e vendite.
 
@@ -99,7 +99,7 @@ Il registro di acquisti e vendite.
 
 ## 6. Alert
 
-*Per: Amministratore, Utente*
+_Per: Amministratore, Utente_
 
 Tutti gli avvisi attivi adesso.
 
@@ -112,7 +112,7 @@ Tutti gli avvisi attivi adesso.
 
 ## 7. Clienti
 
-*Per: Amministratore, Utente*
+_Per: Amministratore, Utente_
 
 Capitale, acquisti e rischio di ogni cliente.
 
@@ -127,7 +127,7 @@ Capitale, acquisti e rischio di ogni cliente.
 
 ## 8. Il mio portafoglio (ruolo Cliente)
 
-*Per: Cliente*
+_Per: Cliente_
 
 La vista in sola lettura dei tuoi investimenti.
 
@@ -142,7 +142,7 @@ La vista in sola lettura dei tuoi investimenti.
 
 ## 9. Utenti e ruoli
 
-*Per: Amministratore*
+_Per: Amministratore_
 
 Solo per gli amministratori.
 
@@ -158,7 +158,7 @@ Solo per gli amministratori.
 
 ## 10. Il mio account
 
-*Per: tutti i ruoli*
+_Per: tutti i ruoli_
 
 Password e nome utente.
 
@@ -170,7 +170,7 @@ Password e nome utente.
 
 ## 11. Domande frequenti
 
-*Per: tutti i ruoli*
+_Per: tutti i ruoli_
 
 Se qualcosa non torna.
 
@@ -181,4 +181,3 @@ Se qualcosa non torna.
 5. **Non posso eliminare un admin.** Deve restare almeno un altro admin attivo; crea o riattiva un altro amministratore e riprova.
 
 > **Suggerimento:** Strumento di analisi: indicatori e alert non sono consigli di investimento.
-

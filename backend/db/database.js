@@ -1,7 +1,7 @@
-const fs = require('fs');
-const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
-const config = require('../config');
+const fs = require("fs");
+const path = require("path");
+const sqlite3 = require("sqlite3").verbose();
+const config = require("../config");
 
 fs.mkdirSync(path.dirname(config.DB_FILE), { recursive: true });
 const db = new sqlite3.Database(config.DB_FILE);
@@ -11,23 +11,28 @@ const run = (sql, params = []) =>
     db.run(sql, params, function (err) {
       if (err) return reject(err);
       resolve({ lastID: this.lastID, changes: this.changes });
-    }));
+    }),
+  );
 const get = (sql, params = []) =>
-  new Promise((resolve, reject) => db.get(sql, params, (e, r) => (e ? reject(e) : resolve(r))));
+  new Promise((resolve, reject) =>
+    db.get(sql, params, (e, r) => (e ? reject(e) : resolve(r))),
+  );
 const all = (sql, params = []) =>
-  new Promise((resolve, reject) => db.all(sql, params, (e, r) => (e ? reject(e) : resolve(r))));
+  new Promise((resolve, reject) =>
+    db.all(sql, params, (e, r) => (e ? reject(e) : resolve(r))),
+  );
 
 // Esegue piu' scritture in modo atomico. Le richieste sono serializzate dentro la stessa connessione.
 let txQueue = Promise.resolve();
 function transaction(fn) {
   const job = txQueue.then(async () => {
-    await run('BEGIN');
+    await run("BEGIN");
     try {
       const out = await fn({ run, get, all });
-      await run('COMMIT');
+      await run("COMMIT");
       return out;
     } catch (e) {
-      await run('ROLLBACK').catch(() => {});
+      await run("ROLLBACK").catch(() => {});
       throw e;
     }
   });
@@ -170,22 +175,31 @@ async function ensureColumn(table, column, ddl) {
 }
 
 async function migrate() {
-  const capitalAdded = await ensureColumn('clients', 'capital', 'REAL NOT NULL DEFAULT 0');
-  await ensureColumn('clients', 'default_stop_pct', 'REAL');
-  await ensureColumn('clients', 'max_drawdown_pct', 'REAL');
-  await ensureColumn('allocations', 'stop_loss_pct', 'REAL');
-  await ensureColumn('allocations', 'status', "TEXT NOT NULL DEFAULT 'open'");
-  await ensureColumn('allocations', 'closed_at', 'TEXT');
-  await ensureColumn('allocations', 'exit_price_eur', 'REAL');
-  await ensureColumn('allocations', 'exit_reason', 'TEXT');
+  const capitalAdded = await ensureColumn(
+    "clients",
+    "capital",
+    "REAL NOT NULL DEFAULT 0",
+  );
+  await ensureColumn("clients", "default_stop_pct", "REAL");
+  await ensureColumn("clients", "max_drawdown_pct", "REAL");
+  await ensureColumn("allocations", "stop_loss_pct", "REAL");
+  await ensureColumn("allocations", "status", "TEXT NOT NULL DEFAULT 'open'");
+  await ensureColumn("allocations", "closed_at", "TEXT");
+  await ensureColumn("allocations", "exit_price_eur", "REAL");
+  await ensureColumn("allocations", "exit_reason", "TEXT");
   // Dati esistenti: il capitale parte dal totale gia' assegnato, cosi' nulla risulta fuori limite
-  if (capitalAdded) await run('UPDATE clients SET capital = COALESCE((SELECT SUM(euro) FROM allocations WHERE client_id = clients.id), 0)');
+  if (capitalAdded)
+    await run(
+      "UPDATE clients SET capital = COALESCE((SELECT SUM(euro) FROM allocations WHERE client_id = clients.id), 0)",
+    );
 }
 
 async function init() {
-  await run('PRAGMA foreign_keys = ON');
-  await run('PRAGMA journal_mode = WAL');
-  for (const stmt of SCHEMA.split(/;\s*\n/).map((s) => s.trim()).filter(Boolean)) {
+  await run("PRAGMA foreign_keys = ON");
+  await run("PRAGMA journal_mode = WAL");
+  for (const stmt of SCHEMA.split(/;\s*\n/)
+    .map((s) => s.trim())
+    .filter(Boolean)) {
     await run(stmt);
   }
   await migrate();
