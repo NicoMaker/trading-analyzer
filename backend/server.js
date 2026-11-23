@@ -18,6 +18,8 @@ function createApp() {
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-Frame-Options", "DENY");
     res.setHeader("Referrer-Policy", "no-referrer");
+    res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
     res.setHeader(
       "Content-Security-Policy",
       "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws: wss:; frame-ancestors 'none'",
@@ -60,9 +62,23 @@ function createApp() {
 
   // ---- Frontend: index.html viene servito in automatico ----
   app.use(
+    "/fonts",
+    express.static(
+      path.join(
+        __dirname,
+        "..",
+        "node_modules",
+        "@fontsource-variable",
+        "inter",
+        "files",
+      ),
+      { maxAge: "365d", immutable: true },
+    ),
+  );
+  app.use(
     express.static(config.FRONTEND_DIR, { index: "index.html", etag: true }),
   );
-  app.get("*", (req, res) =>
+  app.get("/{*splat}", (req, res) =>
     res.sendFile(path.join(config.FRONTEND_DIR, "index.html")),
   );
 

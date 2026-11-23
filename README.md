@@ -7,7 +7,7 @@ Logica ricavata dal file `Controllo_azioni.xlsx` (prezzo medio mobile, stop, obi
 
 ## Avvio
 
-Richiede Node.js 18 o superiore.
+Richiede Node.js 20 o superiore. In alternativa con Docker: `docker build -t trading-analyzer . && docker run -p 3000:3000 -v ta-data:/app/backend/data trading-analyzer`.
 
     npm install
     npm start

@@ -119,6 +119,26 @@ export function renderShell(root, { onLogout }) {
     ),
   );
 
+  // Barra a schede in basso (solo telefono, via CSS): 4 voci principali + "Altro" (apre il menu completo)
+  const tabLinks = items.slice(0, 4).map(([href, label, icon]) =>
+    h(
+      "a",
+      { href, "data-href": href },
+      h("span", { class: "ti", "aria-hidden": "true" }, icon),
+      label.length > 10 ? label.slice(0, 9) + "…" : label,
+    ),
+  );
+  const tabbar = h(
+    "nav",
+    { class: "tabbar", "aria-label": "Navigazione" },
+    tabLinks,
+    h(
+      "button",
+      { type: "button", onclick: () => sidebar.classList.toggle("open") },
+      h("span", { class: "ti", "aria-hidden": "true" }, "☰"),
+      "Altro",
+    ),
+  );
   const view = h("main", { class: "main", id: "view" });
   const banner = h("div", { class: "as-banner hidden" });
   const menuBtn = h(
@@ -145,6 +165,7 @@ export function renderShell(root, { onLogout }) {
         h("div", { style: { padding: "14px 30px 0" } }, banner),
         view,
       ),
+      tabbar,
     ),
   );
   store.on("socket-state", (on) => {
@@ -156,6 +177,9 @@ export function renderShell(root, { onLogout }) {
   return {
     view,
     setActive(hash) {
+      tabLinks.forEach((a) =>
+        a.classList.toggle("active", hash.startsWith(a.dataset.href)),
+      );
       links.forEach((a) =>
         a.classList.toggle(
           "active",
