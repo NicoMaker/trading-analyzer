@@ -120,14 +120,16 @@ export function renderShell(root, { onLogout }) {
   );
 
   // Barra a schede in basso (solo telefono, via CSS): 4 voci principali + "Altro" (apre il menu completo)
-  const tabLinks = items.slice(0, 4).map(([href, label, icon]) =>
-    h(
-      "a",
-      { href, "data-href": href },
-      h("span", { class: "ti", "aria-hidden": "true" }, icon),
-      label.length > 10 ? label.slice(0, 9) + "…" : label,
-    ),
-  );
+  const tabLinks = items
+    .slice(0, 4)
+    .map(([href, label, icon]) =>
+      h(
+        "a",
+        { href, "data-href": href },
+        h("span", { class: "ti", "aria-hidden": "true" }, icon),
+        label.length > 10 ? label.slice(0, 9) + "…" : label,
+      ),
+    );
   const tabbar = h(
     "nav",
     { class: "tabbar", "aria-label": "Navigazione" },

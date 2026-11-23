@@ -97,7 +97,9 @@ body {
   font-weight: 600;
   background: var(--card-2);
   color: var(--text);
-  transition: transform 0.15s, filter 0.15s;
+  transition:
+    transform 0.15s,
+    filter 0.15s;
 }
 .btn:active {
   transform: scale(0.97);
@@ -185,7 +187,8 @@ tbody tr:hover td {
     display: none !important;
   }
   .main {
-    padding: 18px 16px calc(var(--tabbar-h) + 28px + env(safe-area-inset-bottom));
+    padding: 18px 16px
+      calc(var(--tabbar-h) + 28px + env(safe-area-inset-bottom));
   }
   .tabbar {
     position: fixed;
@@ -200,7 +203,9 @@ tbody tr:hover td {
     background: color-mix(in srgb, var(--card) 86%, transparent);
     backdrop-filter: blur(18px) saturate(1.4);
     -webkit-backdrop-filter: blur(18px) saturate(1.4);
-    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--line);
+    box-shadow:
+      0 14px 40px rgba(0, 0, 0, 0.3),
+      0 0 0 1px var(--line);
   }
   .tabbar a,
   .tabbar button {
