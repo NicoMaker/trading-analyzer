@@ -1,0 +1,834 @@
+/* Trading Analyzer — livello futuristico/bancario (caricato per ultimo).
+   Solo effetti e carattere: griglia luminosa, vetro, carta "saldo", bordi di luce.
+   Sostituisce i vecchi modern.css e bank.css. Il markup resta invariato. */
+
+/* ───────── Sfondo: griglia tecnica + aloni ───────── */
+#app {
+  position: relative;
+  z-index: 1;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      900px 520px at 88% -10%,
+      color-mix(in srgb, var(--accent-2) 18%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      760px 460px at -8% 4%,
+      color-mix(in srgb, var(--violet) 14%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / 44px 44px,
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / 44px 44px;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 100%);
+}
+
+/* ───────── Titoli ───────── */
+.page-head h1,
+.page-head h2 {
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 750;
+  letter-spacing: -0.035em;
+  background: linear-gradient(
+    180deg,
+    var(--text) 30%,
+    color-mix(in srgb, var(--text) 62%, var(--accent))
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.page-head h1::after {
+  content: "";
+  display: block;
+  width: 44px;
+  height: 3px;
+  margin-top: 10px;
+  border-radius: 3px;
+  background: var(--grad);
+  box-shadow: var(--halo);
+}
+.card > h2 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.card > h2::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--grad);
+  box-shadow: var(--halo);
+  flex: none;
+  transform: rotate(45deg);
+}
+
+/* ───────── Superfici: vetro con bordo di luce ───────── */
+.card,
+.kpi,
+.table-wrap,
+.alert-item,
+.notif {
+  background: var(--surface-glass);
+  backdrop-filter: blur(16px) saturate(1.25);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  border-color: var(--hairline);
+  box-shadow: var(--glow), var(--shadow-sm);
+}
+.card,
+.kpi {
+  position: relative;
+  border-radius: var(--radius);
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--accent) 46%, transparent),
+    transparent 38%,
+    transparent 62%,
+    color-mix(in srgb, var(--accent-2) 30%, transparent)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  opacity: 0.55;
+  transition: opacity 0.25s var(--ease);
+}
+.card:hover::before {
+  opacity: 1;
+}
+
+/* ───────── KPI ───────── */
+.grid.kpis {
+  gap: 14px;
+}
+.kpi {
+  padding: 16px 18px;
+  transition:
+    transform 0.25s var(--ease),
+    border-color 0.2s,
+    box-shadow 0.25s var(--ease);
+}
+.kpi::after {
+  inset: auto -36px -56px auto;
+  width: 130px;
+  height: 130px;
+  opacity: 0.09;
+  filter: blur(2px);
+}
+.kpi::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 46%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  opacity: 0.8;
+}
+.kpi:hover {
+  transform: translateY(-3px);
+  border-color: var(--line-2);
+  box-shadow:
+    var(--glow),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 20px 44px rgba(0, 0, 0, 0.3);
+}
+.kpi .ico {
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  background: var(--grad-soft);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-weight: 700;
+}
+.kpi .label {
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  font-weight: 650;
+}
+.kpi .value {
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.grid.kpis > * {
+  animation: rise 0.55s var(--ease) both;
+}
+.grid.kpis > *:nth-child(2) {
+  animation-delay: 0.04s;
+}
+.grid.kpis > *:nth-child(3) {
+  animation-delay: 0.08s;
+}
+.grid.kpis > *:nth-child(4) {
+  animation-delay: 0.12s;
+}
+.grid.kpis > *:nth-child(5) {
+  animation-delay: 0.16s;
+}
+.grid.kpis > *:nth-child(n + 6) {
+  animation-delay: 0.2s;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+/* Primo indicatore = carta "saldo" in evidenza */
+.grid.kpis > .kpi:first-child {
+  grid-column: 1 / -1;
+  min-height: 150px;
+  padding: 24px 28px;
+  background: var(--hero);
+  color: #fff;
+  border: 1px solid rgba(160, 200, 255, 0.28);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 24px 60px rgba(20, 70, 190, 0.38);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.grid.kpis > .kpi:first-child::before {
+  inset: 0;
+  width: auto;
+  height: auto;
+  opacity: 0.5;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px) 0 0 / 28px
+      28px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px) 0 0 /
+      28px 28px;
+  -webkit-mask-image: linear-gradient(110deg, transparent 30%, #000 100%);
+  mask-image: linear-gradient(110deg, transparent 30%, #000 100%);
+}
+.grid.kpis > .kpi:first-child::after {
+  inset: -70px -60px auto auto;
+  width: 280px;
+  height: 280px;
+  opacity: 1;
+  filter: none;
+  background:
+    radial-gradient(circle, transparent 58%, rgba(255, 255, 255, 0.16) 59%, transparent 61%),
+    radial-gradient(circle, transparent 38%, rgba(255, 255, 255, 0.12) 39%, transparent 41%),
+    radial-gradient(circle, rgba(34, 211, 238, 0.4), transparent 68%);
+}
+.grid.kpis > .kpi:first-child:hover {
+  transform: translateY(-2px);
+}
+.grid.kpis > .kpi:first-child > * {
+  position: relative;
+  z-index: 1;
+}
+.grid.kpis > .kpi:first-child .value {
+  font-size: clamp(34px, 6vw, 48px);
+  color: #fff;
+  font-weight: 750;
+  margin-top: 14px;
+  text-shadow: 0 0 34px rgba(120, 200, 255, 0.45);
+}
+.grid.kpis > .kpi:first-child .label,
+.grid.kpis > .kpi:first-child .sub {
+  color: rgba(225, 238, 255, 0.78);
+}
+.grid.kpis > .kpi:first-child .ico {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+/* ───────── Pulsanti ───────── */
+.btn {
+  border-radius: var(--radius-sm);
+  padding: 9px 16px;
+  background: color-mix(in srgb, var(--card-2) 88%, transparent);
+  border: 1px solid var(--line-2);
+  transition:
+    transform 0.15s var(--ease),
+    box-shadow 0.2s var(--ease),
+    filter 0.15s,
+    border-color 0.15s,
+    background 0.15s;
+}
+.btn:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--line-2));
+  background: color-mix(in srgb, var(--accent) 8%, var(--card-2));
+}
+.btn:active {
+  transform: translateY(0) scale(0.98);
+}
+.btn.primary,
+button.primary {
+  background: var(--grad);
+  border-color: transparent;
+  color: var(--accent-ink);
+  font-weight: 700;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 10px 26px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.btn.primary:hover {
+  background: var(--grad);
+  filter: brightness(1.08) saturate(1.1);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 14px 34px color-mix(in srgb, var(--accent) 44%, transparent);
+}
+.btn.danger:hover {
+  border-color: color-mix(in srgb, var(--down) 60%, transparent);
+}
+.btn.ghost,
+.btn.ghost:hover {
+  background: transparent;
+  border-color: transparent;
+}
+.btn.ghost:hover {
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+}
+.btn.sm {
+  padding: 6px 12px;
+  border-radius: 10px;
+}
+
+/* ───────── Form ───────── */
+.field label {
+  letter-spacing: 0.03em;
+}
+input,
+select,
+textarea {
+  background: color-mix(in srgb, var(--bg-2) 88%, transparent);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  padding: 11px 13px;
+}
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line-2));
+}
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+input::placeholder,
+textarea::placeholder {
+  color: color-mix(in srgb, var(--muted) 70%, transparent);
+}
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 34px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%237f90b5' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--accent);
+}
+.form-section {
+  letter-spacing: 0.12em;
+}
+.form-section::after {
+  background: linear-gradient(90deg, var(--line-2), transparent);
+}
+
+/* ───────── Tabelle: registro movimenti ───────── */
+.table-wrap {
+  max-height: 78vh;
+  border-radius: var(--radius);
+}
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+th {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 1;
+  border-bottom: 1px solid var(--line-2);
+}
+td,
+th {
+  border-bottom-color: var(--hairline);
+}
+td {
+  border-bottom: 1px solid var(--hairline);
+}
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+tbody tr:hover td {
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+tbody tr:hover > td:first-child {
+  box-shadow: 2px 0 0 var(--accent) inset;
+}
+tbody tr > td:first-child::before,
+.alert-item::before,
+.notif::before,
+.pick-item::before,
+.ranked > *::before,
+.toc a::before {
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--card-2));
+  border-color: color-mix(in srgb, var(--accent) 20%, var(--line));
+  color: color-mix(in srgb, var(--accent) 70%, var(--muted));
+}
+
+/* ───────── Badge, segmentati, barre ───────── */
+.badge {
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 22%, transparent) inset;
+}
+.count {
+  box-shadow: 0 0 14px color-mix(in srgb, var(--down) 55%, transparent);
+}
+.count-pill,
+.role-tag {
+  border-radius: 999px;
+}
+.seg {
+  background: color-mix(in srgb, var(--bg-2) 85%, transparent);
+  border-color: var(--line-2);
+}
+.seg button.on {
+  background: var(--grad-soft);
+  color: var(--text);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent) inset,
+    0 0 18px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.bar {
+  height: 8px;
+  background: color-mix(in srgb, var(--card-2) 90%, transparent);
+  box-shadow: 0 0 0 1px var(--hairline) inset;
+}
+.bar > span {
+  transition: width 0.7s var(--ease);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+.bar.over > span {
+  box-shadow: 0 0 12px color-mix(in srgb, var(--down) 55%, transparent);
+}
+.live-dot.on {
+  box-shadow: 0 0 0 3px var(--up-bg), 0 0 12px var(--up);
+}
+.banner,
+.as-banner,
+.preview,
+.g-tip {
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+}
+
+/* ───────── Modali, toast, caricamento ───────── */
+.overlay {
+  background: rgba(2, 5, 12, 0.7);
+  backdrop-filter: blur(12px) saturate(1.15);
+  -webkit-backdrop-filter: blur(12px) saturate(1.15);
+  animation: fade 0.18s ease-out;
+}
+:root[data-theme="light"] .overlay {
+  background: rgba(10, 26, 58, 0.4);
+}
+.modal {
+  background: color-mix(in srgb, var(--card) 96%, transparent);
+  border: 1px solid var(--line-2);
+  border-radius: 22px;
+  box-shadow: var(--shadow), 0 0 80px color-mix(in srgb, var(--accent) 10%, transparent);
+  animation: modal-in 0.3s var(--ease);
+}
+.modal-head h2 {
+  font-size: 19px;
+}
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+.toast {
+  background: color-mix(in srgb, var(--card-2) 94%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 14px;
+  animation: toast-in 0.3s var(--ease);
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px) scale(0.97);
+  }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--card-2) 80%, transparent);
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--accent) 12%, transparent),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+.chart .tip {
+  background: color-mix(in srgb, var(--card-2) 94%, transparent);
+  backdrop-filter: blur(10px);
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--line-2));
+}
+
+/* ───────── Guida ───────── */
+.g-sec > .g-title::before {
+  border-radius: 12px;
+  box-shadow: var(--halo);
+}
+.g-steps li::before {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line-2));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/* ───────── Accesso ───────── */
+.login-wrap {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  padding: 22px;
+  gap: 28px;
+  background: transparent;
+}
+.login-hero {
+  display: none;
+}
+.login-side {
+  display: grid;
+  place-items: center;
+  width: 100%;
+}
+.brand-mark {
+  color: var(--accent-ink);
+}
+.login-card {
+  position: relative;
+  width: min(430px, 100%);
+  padding: 36px;
+  border-radius: 26px;
+  background: color-mix(in srgb, var(--card) 82%, transparent);
+  backdrop-filter: blur(22px) saturate(1.3);
+  -webkit-backdrop-filter: blur(22px) saturate(1.3);
+  border: 1px solid var(--line-2);
+  box-shadow:
+    var(--shadow),
+    0 0 90px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.login-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 22% auto 22%;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  box-shadow: var(--halo);
+}
+.login-card .brand {
+  padding-bottom: 10px;
+  font-size: 21px;
+}
+.login-secure {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  font-size: 11.5px;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+.login-secure i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--up);
+  box-shadow: 0 0 10px var(--up);
+}
+@media (min-width: 980px) {
+  .login-wrap {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    padding: 0;
+    gap: 0;
+    place-items: stretch;
+  }
+  .login-hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 40px;
+    padding: 56px 64px;
+    position: relative;
+    overflow: hidden;
+    background: var(--hero);
+    color: #fff;
+    border-right: 1px solid rgba(160, 200, 255, 0.2);
+  }
+  .login-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px) 0 0 / 40px
+        40px,
+      linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px) 0 0 /
+        40px 40px;
+    -webkit-mask-image: radial-gradient(ellipse at 30% 40%, #000, transparent 75%);
+    mask-image: radial-gradient(ellipse at 30% 40%, #000, transparent 75%);
+  }
+  .login-hero::after {
+    content: "";
+    position: absolute;
+    width: 520px;
+    height: 520px;
+    right: -180px;
+    bottom: -200px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, transparent 60%, rgba(255, 255, 255, 0.14) 61%, transparent 63%),
+      radial-gradient(circle, transparent 42%, rgba(255, 255, 255, 0.1) 43%, transparent 45%),
+      radial-gradient(circle, rgba(34, 211, 238, 0.35), transparent 70%);
+  }
+  .login-hero > * {
+    position: relative;
+    z-index: 1;
+  }
+  .login-hero .brand {
+    font-size: 18px;
+    padding: 0;
+  }
+  .login-hero h1 {
+    font-size: clamp(34px, 3.6vw, 50px);
+    line-height: 1.06;
+    letter-spacing: -0.04em;
+    max-width: 14ch;
+    margin-bottom: 18px;
+  }
+  .login-hero h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, #67e8f9, #a5b4fc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .login-hero p {
+    margin: 0;
+    max-width: 44ch;
+    color: rgba(225, 238, 255, 0.8);
+    font-size: 15.5px;
+  }
+  .login-points {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .login-points li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(8px);
+    font-weight: 600;
+    max-width: 440px;
+  }
+  .login-points li b {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    flex: none;
+    background: rgba(34, 211, 238, 0.2);
+    border: 1px solid rgba(103, 232, 249, 0.5);
+    color: #a5f3fc;
+    font: 700 13px/1 var(--mono);
+  }
+  .login-side {
+    display: grid;
+    place-items: center;
+    padding: 32px;
+  }
+}
+
+/* ───────── Barra a schede in basso (telefono) ───────── */
+.tabbar {
+  display: none;
+}
+@media (max-width: 900px) {
+  .tabbar {
+    position: fixed;
+    inset: auto 12px calc(10px + env(safe-area-inset-bottom)) 12px;
+    z-index: 30;
+    height: var(--tabbar-h);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 6px;
+    border-radius: 24px;
+    background: color-mix(in srgb, var(--card) 80%, transparent);
+    backdrop-filter: blur(22px) saturate(1.5);
+    -webkit-backdrop-filter: blur(22px) saturate(1.5);
+    box-shadow:
+      0 16px 44px rgba(0, 0, 0, 0.4),
+      0 0 0 1px var(--line-2),
+      0 -1px 0 rgba(255, 255, 255, 0.05) inset;
+  }
+  .tabbar a,
+  .tabbar button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 8px 2px;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font: 600 11px/1 var(--font);
+    text-decoration: none;
+    border-radius: 18px;
+    position: relative;
+    transition:
+      color 0.2s,
+      background 0.2s;
+  }
+  .tabbar .ti {
+    font-size: 20px;
+    line-height: 1;
+  }
+  .tabbar .active {
+    color: var(--accent);
+    background: var(--grad-soft);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent) inset;
+  }
+  .tabbar .count {
+    position: absolute;
+    top: 2px;
+    right: 22%;
+  }
+  .btn {
+    min-height: 40px;
+  }
+  .btn.sm {
+    min-height: 34px;
+  }
+  .sidebar.open {
+    backdrop-filter: blur(22px);
+  }
+  .grid.two {
+    grid-template-columns: 1fr;
+  }
+  .grid.kpis > .kpi:first-child {
+    min-height: 130px;
+    padding: 20px;
+  }
+}
+
+/* ───────── Preferenze di sistema e stampa ───────── */
+@media (prefers-reduced-motion: reduce) {
+  .grid.kpis > *,
+  .modal,
+  .toast,
+  .overlay,
+  .skeleton::after {
+    animation: none !important;
+  }
+}
+@media (prefers-contrast: more) {
+  :root {
+    --hairline: var(--line-2);
+  }
+  .card,
+  .kpi,
+  .table-wrap {
+    backdrop-filter: none;
+  }
+}
+@media (forced-colors: active) {
+  .btn.primary {
+    border: 1px solid ButtonText;
+  }
+}
+@media print {
+  body::before {
+    display: none;
+  }
+  .card,
+  .kpi,
+  .table-wrap {
+    backdrop-filter: none;
+    box-shadow: none;
+    border: 1px solid #ccc;
+    background: #fff;
+  }
+  .card::before {
+    display: none;
+  }
+  .page-head h1 {
+    color: #000;
+    background: none;
+  }
+  .page-head h1::after {
+    display: none;
+  }
+}

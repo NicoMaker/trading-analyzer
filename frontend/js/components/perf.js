@@ -39,11 +39,11 @@ export function perfCard(title, key, load, { baseLabel = "Costo" } = {}) {
         height: 260,
         format: (v) => eur(v, 0),
         series: [
-          { name: "Valore", values: d.value, color: "#10b981", width: 2.2 },
+          { name: "Valore", values: d.value, color: "#22d3ee", width: 2.2 },
           {
             name: baseLabel,
             values: base,
-            color: "#8fa0c0",
+            color: "#7f90b5",
             dash: "5 4",
             width: 1.5,
           },
@@ -58,12 +58,12 @@ export function perfCard(title, key, load, { baseLabel = "Costo" } = {}) {
         times: d.times,
         height: 150,
         format: (v) => pct(v, 1),
-        guides: [{ value: 0, label: "0%", color: "#8fa0c0" }],
+        guides: [{ value: 0, label: "0%", color: "#7f90b5" }],
         series: [
           {
             name: "Rendimento",
             values: d.pnlPct,
-            color: "#60a5fa",
+            color: "#6ea0ff",
             width: 1.8,
           },
         ],

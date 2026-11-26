@@ -57,13 +57,15 @@ export function renderLogin(root, onLogged, notice) {
   );
   user.id = "lu";
   pass.id = "lp";
+  const point = (icon, text) =>
+    h("li", {}, h("b", { "aria-hidden": "true" }, icon), text);
   root.append(
     h(
       "div",
       { class: "login-wrap" },
       h(
-        "div",
-        { class: "login-card" },
+        "section",
+        { class: "login-hero", "aria-hidden": "true" },
         h(
           "div",
           { class: "brand" },
@@ -71,12 +73,44 @@ export function renderLogin(root, onLogged, notice) {
           "Trading Analyzer",
         ),
         h(
-          "p",
-          { class: "muted", style: { margin: "0 0 18px" } },
-          "Analisi del portafoglio, alert e clienti con quotazioni reali.",
+          "div",
+          {},
+          h("h1", {}, "Il tuo portafoglio, ", h("em", {}, "sotto controllo.")),
+          h(
+            "p",
+            {},
+            "Quotazioni reali, indicatori, alert e allocazioni dei clienti in un'unica console.",
+          ),
         ),
-        notice && h("div", { class: "banner" }, notice),
-        form,
+        h(
+          "ul",
+          { class: "login-points" },
+          point("▦", "Portafoglio e quotazioni in tempo reale"),
+          point("⚑", "Alert su stop, obiettivi e indicatori"),
+          point("☺", "Clienti, allocazioni e operazioni insieme"),
+        ),
+      ),
+      h(
+        "div",
+        { class: "login-side" },
+        h(
+          "div",
+          { class: "login-card" },
+          h(
+            "div",
+            { class: "brand" },
+            h("span", { class: "brand-mark" }, logo()),
+            "Trading Analyzer",
+          ),
+          h(
+            "p",
+            { class: "muted", style: { margin: "0 0 18px" } },
+            "Accedi per gestire portafoglio, alert e clienti.",
+          ),
+          notice && h("div", { class: "banner" }, notice),
+          form,
+          h("div", { class: "login-secure" }, h("i"), "Connessione protetta"),
+        ),
       ),
     ),
   );
@@ -89,7 +123,7 @@ export function logo() {
   const p = document.createElementNS(ns, "path");
   p.setAttribute("d", "M6 21l6-7 5 4 9-10");
   p.setAttribute("fill", "none");
-  p.setAttribute("stroke", "#fff");
+  p.setAttribute("stroke", "currentColor");
   p.setAttribute("stroke-width", "3");
   p.setAttribute("stroke-linecap", "round");
   p.setAttribute("stroke-linejoin", "round");

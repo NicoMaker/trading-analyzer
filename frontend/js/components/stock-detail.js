@@ -194,21 +194,21 @@ function technical(an, p) {
       series.push({
         name: "Media 20",
         values: tail(S.sma20, n),
-        color: "#f59e0b",
+        color: "#ffc24b",
         width: 1.4,
       });
     if (state.sma50)
       series.push({
         name: "Media 50",
         values: tail(S.sma50, n),
-        color: "#38bdf8",
+        color: "#22d3ee",
         width: 1.4,
       });
     if (state.sma200)
       series.push({
         name: "Media 200",
         values: tail(S.sma200, n),
-        color: "#c084fc",
+        color: "#a78bfa",
         width: 1.4,
       });
     const guides = [];
@@ -239,7 +239,7 @@ function technical(an, p) {
     rsiBox.replaceChildren(
       lineChart({
         times: t,
-        series: [{ name: "RSI 14", values: tail(S.rsi, n), color: "#f472b6" }],
+        series: [{ name: "RSI 14", values: tail(S.rsi, n), color: "#f0abfc" }],
         height: 170,
         width: 520,
         yMin: 0,
@@ -259,8 +259,8 @@ function technical(an, p) {
       lineChart({
         times: t,
         series: [
-          { name: "MACD", values: tail(S.macd, n), color: "#34d399" },
-          { name: "Segnale", values: tail(S.macdSignal, n), color: "#fb923c" },
+          { name: "MACD", values: tail(S.macd, n), color: "#2ee6a6" },
+          { name: "Segnale", values: tail(S.macdSignal, n), color: "#ffa45c" },
         ],
         height: 170,
         width: 520,

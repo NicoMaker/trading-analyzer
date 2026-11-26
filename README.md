@@ -29,7 +29,7 @@ Il server parte su http://localhost:3000, serve `frontend/index.html` (il browse
       data/                database SQLite (creato al primo avvio)
     frontend/
       index.html
-      css/                 base.css, components.css
+      css/                 base.css (token e layout), components.css, futuristic.css (effetti)
       js/                  app.js (router), api.js, store.js, utils.js
       js/components/       login, navbar, dashboard, positions, stock-detail, operations, alerts, clients, users, chart, ui
 
