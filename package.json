@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "node --watch backend/server.js",
-    "test": "node --test backend/tests/unit.js backend/tests/api.js"
+    "test": "node --test backend/tests/unit.js backend/tests/api.js",
+    "guide": "node scripts/build-guide.mjs",
+    "seed": "node backend/db/seed.js"
   },
   "engines": {
     "node": ">=20"

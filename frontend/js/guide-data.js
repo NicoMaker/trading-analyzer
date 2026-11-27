@@ -7,11 +7,11 @@ export const GUIDE = [
     roles: ["admin", "utente", "cliente"],
     lead: "Accesso, menu e funzioni comuni a tutti.",
     steps: [
-      "Apri l'indirizzo del server (di solito **http://localhost:3000**) e accedi con nome utente e password. Al primo avvio l'amministratore è **Admin / Admin123!**.",
+      "Apri l'indirizzo del server (di solito **http://localhost:3000**) e accedi con nome utente e password. Al primo avvio l'amministratore è **Admin / Admin123!**. Dopo 5 password sbagliate l'accesso si blocca per 1 minuto.",
       "Se compare l'avviso «password iniziale», vai su **Il mio account** (in basso a sinistra) e cambiala subito: almeno 8 caratteri con maiuscola, minuscola, numero e simbolo.",
-      "Usa il **menu a sinistra** per spostarti tra le pagine; su telefono si apre con il pulsante **☰ Menu**.",
+      "Usa il **menu a sinistra** per spostarti tra le pagine. Su telefono trovi in basso una **barra a schede** con le quattro voci principali e **☰ Altro**, che apre il menu completo.",
       "Il pallino **live** indica che gli aggiornamenti arrivano in diretta: quotazioni, operazioni e modifiche fatte da altri compaiono da sole, senza ricaricare.",
-      "La **campanella 🔔** mostra le notifiche (acquisti, vendite automatiche, avvisi). Il numero rosso indica quelle non lette.",
+      "La **campanella 🔔** mostra le notifiche (acquisti, vendite automatiche, avvisi). Il numero rosso indica quelle non lette; aprendo il pannello vengono segnate come lette.",
       "Con **◐ Tema** passi dal tema scuro al chiaro; la scelta viene ricordata dal browser.",
     ],
     tip: "Ogni tabella ed elenco ha un **numero progressivo** a sinistra di ogni riga: se filtri, i numeri si riallineano da 1.",
@@ -81,7 +81,7 @@ export const GUIDE = [
       "I contatori in alto dividono gli avvisi in **critici**, **da vedere** e **obiettivi raggiunti**.",
       "Filtra per livello con i pulsanti; clicca un avviso per aprire il titolo.",
       "Gli avvisi nascono dalle **soglie** che imposti su ogni titolo (stop, obiettivo, valore minimo, utile/perdita, calo giornaliero, peso massimo, RSI, revisione) e da controlli automatici (quotazione mancante, sotto media 200, death cross, MACD negativo).",
-      "In fondo c'è lo **storico recente**; il controllo automatico gira ogni 10 minuti mentre il server è acceso.",
+      "In fondo c'è lo **storico recente**; il controllo automatico gira ogni minuto, insieme all'aggiornamento delle quotazioni, mentre il server è acceso. Ogni avviso nuovo entra nello storico e ti arriva come notifica una sola volta al giorno per titolo e tipo.",
     ],
   },
   {

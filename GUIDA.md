@@ -1,6 +1,6 @@
 # Trading Analyzer — Guida di utilizzo
 
-Guida rapida per ogni ruolo: **Amministratore**, **Utente** e **Cliente**. La stessa guida è nell'app, alla voce **Guida** del menu.
+Guida rapida per ogni ruolo: **Amministratore**, **Utente** e **Cliente**. La stessa guida è nell'app, alla voce **Guida** del menu. Per installazione, architettura e API vedi **Guida.pdf**.
 
 ## Indice
 
@@ -24,11 +24,11 @@ _Per: tutti i ruoli_
 
 Accesso, menu e funzioni comuni a tutti.
 
-1. Apri l'indirizzo del server (di solito **http://localhost:3000**) e accedi con nome utente e password. Al primo avvio l'amministratore è **Admin / Admin123!**.
+1. Apri l'indirizzo del server (di solito **http://localhost:3000**) e accedi con nome utente e password. Al primo avvio l'amministratore è **Admin / Admin123!**. Dopo 5 password sbagliate l'accesso si blocca per 1 minuto.
 2. Se compare l'avviso «password iniziale», vai su **Il mio account** (in basso a sinistra) e cambiala subito: almeno 8 caratteri con maiuscola, minuscola, numero e simbolo.
-3. Usa il **menu a sinistra** per spostarti tra le pagine; su telefono si apre con il pulsante **☰ Menu**.
+3. Usa il **menu a sinistra** per spostarti tra le pagine. Su telefono trovi in basso una **barra a schede** con le quattro voci principali e **☰ Altro**, che apre il menu completo.
 4. Il pallino **live** indica che gli aggiornamenti arrivano in diretta: quotazioni, operazioni e modifiche fatte da altri compaiono da sole, senza ricaricare.
-5. La **campanella 🔔** mostra le notifiche (acquisti, vendite automatiche, avvisi). Il numero rosso indica quelle non lette.
+5. La **campanella 🔔** mostra le notifiche (acquisti, vendite automatiche, avvisi). Il numero rosso indica quelle non lette; aprendo il pannello vengono segnate come lette.
 6. Con **◐ Tema** passi dal tema scuro al chiaro; la scelta viene ricordata dal browser.
 
 > **Suggerimento:** Ogni tabella ed elenco ha un **numero progressivo** a sinistra di ogni riga: se filtri, i numeri si riallineano da 1.
@@ -106,7 +106,7 @@ Tutti gli avvisi attivi adesso.
 1. I contatori in alto dividono gli avvisi in **critici**, **da vedere** e **obiettivi raggiunti**.
 2. Filtra per livello con i pulsanti; clicca un avviso per aprire il titolo.
 3. Gli avvisi nascono dalle **soglie** che imposti su ogni titolo (stop, obiettivo, valore minimo, utile/perdita, calo giornaliero, peso massimo, RSI, revisione) e da controlli automatici (quotazione mancante, sotto media 200, death cross, MACD negativo).
-4. In fondo c'è lo **storico recente**; il controllo automatico gira ogni 10 minuti mentre il server è acceso.
+4. In fondo c'è lo **storico recente**; il controllo automatico gira ogni minuto, insieme all'aggiornamento delle quotazioni, mentre il server è acceso. Ogni avviso nuovo entra nello storico e ti arriva come notifica una sola volta al giorno per titolo e tipo.
 
 <a id="clienti"></a>
 

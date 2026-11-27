@@ -3,11 +3,13 @@
 Analisi del portafoglio azionario in tempo reale (socket.io) con quotazioni reali, alert su soglie personali, utenti con ruoli e allocazione di importi in euro ai clienti.
 Logica ricavata dal file `Controllo_azioni.xlsx` (prezzo medio mobile, stop, obiettivo, peso massimo, revisione, quotazioni mancanti, controlli sulle operazioni), qui con dati scaricati in automatico.
 
-> Guida di utilizzo completa: **GUIDA.md** (e pagina **Guida** nel menu dell'app).
+> Guida di utilizzo: **GUIDA.md** (e pagina **Guida** nel menu dell'app). Guida completa con installazione, architettura e API: **Guida.pdf**.
 
 ## Avvio
 
-Richiede Node.js 20 o superiore. In alternativa con Docker: `docker build -t trading-analyzer . && docker run -p 3000:3000 -v ta-data:/app/backend/data trading-analyzer`.
+Richiede Node.js 20 o superiore.
+
+**Dati di esempio:** `npm run seed` aggiunge l'utente `demo` (password `Demo123!`) con 8 titoli, operazioni, 3 clienti con allocazioni e notifiche; i clienti `mario.rossi` e `giulia.bianchi` entrano con `Cliente123!`. Funziona anche offline (quotazioni di esempio nella cache). Usa `npm run seed -- --reset` per rifarli da capo, `DB_FILE=/tmp/prova.db npm run seed` per provarli su un database separato.
 
     npm install
     npm start
@@ -25,11 +27,14 @@ Il server parte su http://localhost:3000, serve `frontend/index.html` (il browse
       middleware/auth.js   sessioni (cookie httpOnly + JWT), ruoli
       routes/              auth, users, positions, operations, clients, market, alerts, me
       services/            market (Yahoo Finance), indicators (RSI, MACD, medie...), portfolio, alerts, scheduler
-      tests/               test automatici (npm test)
+      tests/               test automatici (npm test: unit.js e api.js)
       data/                database SQLite (creato al primo avvio)
     frontend/
       index.html
       css/                 base.css (token e layout), components.css, futuristic.css (effetti)
+    scripts/
+      build-guide.mjs      rigenera GUIDA.md da frontend/js/guide-data.js (npm run guide)
+      build-guide-pdf.py   rigenera Guida.pdf (pip install reportlab)
       js/                  app.js (router), api.js, store.js, utils.js
       js/components/       login, navbar, dashboard, positions, stock-detail, operations, alerts, clients, users, chart, ui
 
@@ -43,7 +48,7 @@ Regole: password di almeno 8 caratteri con maiuscola, minuscola, numero e simbol
 
 ## Dati di mercato
 
-Yahoo Finance (gratuito, senza chiave): quotazioni, storico a 1 anno, ricerca per nome/ticker/ISIN. Cambi da Yahoo con riserva Frankfurter (BCE). I dati sono in cache SQLite (10 minuti) e aggiornati in background; se l'API non risponde si usa l'ultimo dato salvato o il prezzo manuale. Yahoo è un servizio non ufficiale: può cambiare o limitare le richieste.
+Yahoo Finance (gratuito, senza chiave): quotazioni, storico a 1 anno, ricerca per nome/ticker/ISIN. Cambi da Yahoo con riserva Frankfurter (BCE). I dati sono in cache SQLite (45 secondi, `QUOTE_TTL_MS`) e aggiornati in background ogni 60 secondi; se l'API non risponde si usa l'ultimo dato salvato o il prezzo manuale. Yahoo è un servizio non ufficiale: può cambiare o limitare le richieste.
 Il ticker usa il formato Yahoo (AAPL, ENI.MI, VOD.L, SAP.DE...). Dalla ricerca "Cerca titolo" si compila da solo.
 
 ## Alert
